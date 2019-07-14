@@ -8,13 +8,22 @@ login at https://www.nike.com/member/profile
 and search for NIKE.COM in Network.  Save it to file shown below.
 
 Graphs using Plotly https://plot.ly/python/bar-charts/#bar-chart-with-hover-text
+
+Example usage:
+python get_workouts.py
+
 """
 import argparse
 import datetime
+import json
 import logging
+import os
 import sys
 
+import plotly.graph_objs as go
+from plotly.offline import plot
 import requests
+
 
 ACTIVITIES_URL = 'https://api.nike.com/sport/v3/me/activities/after_time/{}'
 ACTIVITY_URL = 'https://api.nike.com/sport/v3/me/activity/{}?metrics=ALL'
@@ -47,10 +56,6 @@ def run_cmd(args):
 
 
 def generate_plotly_data():
-    import json, os
-    import plotly.graph_objs as go
-    from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
-
     PATH = 'activities_data/activity_profiles/'
 
     all_data_points = []
