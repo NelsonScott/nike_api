@@ -1,2 +1,5 @@
 activities_data/
 bearer_token.txt
+__pycache__
+env
+temp-plot.html

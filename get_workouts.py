@@ -4,8 +4,10 @@
 Based on https://gist.github.com/niw/858c1ecaef89858893681e46db63db66
 
 To obtain Bearer token, open dev tools,
-login at https://www.nike.com/member/profile ,
+login at https://www.nike.com/member/profile
 and search for NIKE.COM in Network.  Save it to file shown below.
+
+Graphs using Plotly https://plot.ly/python/bar-charts/#bar-chart-with-hover-text
 """
 import argparse
 import datetime
@@ -42,6 +44,38 @@ def run_cmd(args):
 
         print('start_time: {}'.format(start_time))
         print('duration: {}'.format(duration))
+
+
+def generate_plotly_data():
+    import json, os
+    import plotly.graph_objs as go
+    from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
+
+    PATH = 'activities_data/activity_profiles/'
+
+    all_data_points = []
+    for file_name in os.listdir(PATH):
+        loaded_data = json.load(open(PATH + file_name))
+
+        start_epoch = loaded_data['start_epoch_ms']
+        duration_ms = loaded_data['active_duration_ms']
+
+        all_data_points.append([start_epoch, duration_ms])
+
+    all_data_points.sort(key=lambda start_time: start_time[0])
+
+    all_start = [x[0] for x in all_data_points]
+    all_start = [_ms_to_timestamp(x) for x in all_start]
+
+    all_duration = [x[1] for x in all_data_points]
+    all_duration = [_ms_to_minute(x) for x in all_duration]
+    plot([go.Bar(x=all_start, y=all_duration)])
+
+
+def _ms_to_minute(ms):
+    seconds = ms / 1000
+
+    return seconds / 60
 
 
 def _ms_to_timestamp(ms):
