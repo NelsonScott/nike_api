@@ -10,7 +10,7 @@ and search for NIKE.COM in Network.  Save it to file shown below.
 Graphs using Plotly https://plot.ly/python/bar-charts/#bar-chart-with-hover-text
 
 Example usage:
-python get_workouts.py
+./get_workouts.py
 
 """
 import argparse

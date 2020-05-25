@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Deprecate: Maybe fully converted to python now, nearly  this shell script
+
 # fetch_nike_puls_all_activities.bash
 # A simple bash script to fetch all activities and metrics from NikePlus.
 # See `nike_plus_api.md` for the API details.
