@@ -31,50 +31,65 @@ TOKEN_PATH = './bearer_token.txt'
 
 
 def run_cmd(args):
+    # First, Get every 'activity id' corresponding to a workout,
+    # So we can later get each workout's activity info (start, duration)
+    logger = logging.getLogger(__name__)
     with open(TOKEN_PATH, 'r') as file:
         token = file.read().replace('\n', '')
 
-    print(token)
     headers = {'Authorization': 'Bearer {}'.format(token)}
+    # TODO: hardcoded time, remove or make a passed in option
+    # BUG: also, this seems it may only grab 2019 workouts due to start time
     after_time = '1562284800000'
     url = ACTIVITIES_URL.format(after_time)
+    logger.info("GET {}".format(url))
 
     response = requests.get(url, headers=headers)
     response.raise_for_status()
 
-    for activity in response.json()['activities']:
+    activities = response.json()['activities']
+    logger.debug("Found {} workouts".format(len(activities)))
+    logger.debug("Going to GET each Workout Profile")
+    os.makedirs(args.output_path, exist_ok=True)
+    for activity in activities:
         activity_id = activity['id']
-        print(activity_id)
+        logger.debug("GET {}".format(url))
         url = ACTIVITY_URL.format(activity_id)
         response = requests.get(url, headers=headers).json()
 
         start_time = _ms_to_timestamp(response['start_epoch_ms'])
         duration = _ms_to_minutes_and_seconds(response['active_duration_ms'])
 
-        print('start_time: {}'.format(start_time))
-        print('duration: {}'.format(duration))
+        with open("{}/{}".format(args.output_path, activity_id), 'w+') as target:
+            json.dump(response, target)
+
+    logger.info("Saved workout data, Going to Generate Plot")
+    generate_plotly_data(args)
+    logger.info("Success, Open Your HTML File to See Results")
 
 
-def generate_plotly_data():
-    PATH = 'activities_data/activity_profiles/'
-
+def generate_plotly_data(args):
     all_data_points = []
-    for file_name in os.listdir(PATH):
-        loaded_data = json.load(open(PATH + file_name))
+
+    for file_name in os.listdir(args.output_path):
+        loaded_data = json.load(open(args.output_path + file_name))
 
         start_epoch = loaded_data['start_epoch_ms']
         duration_ms = loaded_data['active_duration_ms']
 
         all_data_points.append([start_epoch, duration_ms])
 
-    all_data_points.sort(key=lambda start_time: start_time[0])
+    # sort based on start date
+    all_data_points.sort(key=lambda data_point: data_point[0])
 
-    all_start = [x[0] for x in all_data_points]
-    all_start = [_ms_to_timestamp(x) for x in all_start]
+    # get start times as readable timestamp
+    all_start_times = [x[0] for x in all_data_points]
+    all_start_times = [_ms_to_timestamp(x) for x in all_start_times]
 
-    all_duration = [x[1] for x in all_data_points]
-    all_duration = [_ms_to_minute(x) for x in all_duration]
-    plot([go.Bar(x=all_start, y=all_duration)])
+    all_durations = [x[1] for x in all_data_points]
+    all_durations = [_ms_to_minute(x) for x in all_durations]
+
+    plot([go.Bar(x=all_start_times, y=all_durations)], filename='nike-workouts.html')
 
 
 def _ms_to_minute(ms):

@@ -5,4 +5,4 @@
 1.  Open Chrome Dev tools, click Network, search NIKE.COM, under "Headers" copy the authorization 'bearer' value and copy it to 'bearer_token.txt'
 1.  Run `./dev_scripts/docker.sh`
 1.  Inside container run `./get_workouts.py`
-1.  
+1.  And then open nike-workouts.html in Chrome

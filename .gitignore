@@ -2,5 +2,6 @@ activities_data/
 bearer_token.txt
 __pycache__
 env
-temp-plot.html
+nike-workouts.html
+workout_data/
 .DS_Store
